@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Math Quiz Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .game-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 350px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        input {
+            padding: 6px;
+            width: 80%;
+            margin-top: 10px;
+        }
+        .question {
+            font-size: 18px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-box">
+    <h2>🎮 Math Quiz Game 🎮</h2>
+
+    <div id="start">
+        <p>Select Difficulty</p>
+        <button onclick="startGame(1)">Easy</button>
+        <button onclick="startGame(2)">Medium</button>
+        <button onclick="startGame(3)">Hard</button>
+    </div>
+
+    <div id="quiz" style="display:none;">
+        <div class="question" id="question"></div>
+        <input type="number" id="answer" placeholder="Enter answer">
+        <br>
+        <button onclick="submitAnswer()">Submit</button>
+        <p id="feedback"></p>
+    </div>
+
+    <div id="result" style="display:none;"></div>
+</div>
+
+<script>
+    let level, score = 0, count = 0;
+    let correctAnswer = 0;
+
+    function random(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateQuestion() {
+        let a, b, op;
+
+        if (level === 1) {
+            a = random(1, 10);
+            b = random(1, 10);
+            op = ['+', '-'][random(0, 1)];
+        } else if (level === 2) {
+            a = random(10, 50);
+            b = random(1, 20);
+            op = ['+', '-', '*'][random(0, 2)];
+        } else {
+            a = random(20, 100);
+            b = random(1, 20);
+            op = ['+', '-', '*', '/'][random(0, 3)];
+            if (op === '/') a = a * b;
+        }
+
+        document.getElementById("question").innerText =
+            `Question ${count + 1}: ${a} ${op} ${b} = ?`;
+
+        if (op === '+') correctAnswer = a + b;
+        else if (op === '-') correctAnswer = a - b;
+        else if (op === '*') correctAnswer = a * b;
+        else correctAnswer = a / b;
+    }
+
+    function startGame(lvl) {
+        level = lvl;
+        score = 0;
+        count = 0;
+        document.getElementById("start").style.display = "none";
+        document.getElementById("quiz").style.display = "block";
+        generateQuestion();
+    }
+
+    function submitAnswer() {
+        let userAns = parseFloat(document.getElementById("answer").value);
+        let feedback = document.getElementById("feedback");
+
+        if (Math.abs(userAns - correctAnswer) < 0.001) {
+            feedback.innerText = "✅ Correct!";
+            score++;
+        } else {
+            feedback.innerText = `❌ Wrong! Answer: ${correctAnswer}`;
+        }
+
+        document.getElementById("answer").value = "";
+        count++;
+
+        if (count < 5) {
+            setTimeout(() => {
+                feedback.innerText = "";
+                generateQuestion();
+            }, 1000);
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        document.getElementById("quiz").style.display = "none";
+        let result = document.getElementById("result");
+        result.style.display = "block";
+
+        let message = score === 5 ? "🎉 Perfect score!" :
+                      score >= 3 ? "👍 Well done!" :
+                      "😅 Try again!";
+
+        result.innerHTML = `<h3>🏆 Score: ${score}/5</h3><p>${message}</p>
+                            <button onclick="location.reload()">Play Again</button>`;
+    }
+</script>
+
+</body>
+</html>
